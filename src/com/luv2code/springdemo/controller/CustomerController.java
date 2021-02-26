@@ -1,7 +1,9 @@
 package com.luv2code.springdemo.controller;
 
 
+
 import java.util.List;
+import com.luv2code.springdemo.util.SortUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,13 +33,23 @@ public class CustomerController {
 	private CustomerService customerService;
 
 	@GetMapping("/list")
-	public String listCustomers(Model theModel) {
+	public String listCustomers(Model theModel, @RequestParam(required=false) String sort) {
 		
 		// get customers from the dao-service
-		List<Customer> theCustomer = customerService.getCustomers();
+		List<Customer> theCustomers; //= customerService.getCustomers();
+		
+		// check for sort field
+		if(sort != null) {
+			int theSortedField = Integer.parseInt(sort);
+			theCustomers = customerService.getCustomers(theSortedField);
+		}
+		else {
+			// no sort field provided ... default to sorting by last name
+			theCustomers = customerService.getCustomers(SortUtils.FIRST_NAME);
+		}
 
 		// add to customers to the model
-		theModel.addAttribute("customers", theCustomer);
+		theModel.addAttribute("customers", theCustomers);
 		
 		return "list-customers";
 		

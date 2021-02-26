@@ -1,5 +1,6 @@
 package com.luv2code.springdemo.dao;
 
+import com.luv2code.springdemo.util.*;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.luv2code.springdemo.entity.Customer;
+import com.luv2code.springdemo.util.SortUtils;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -162,6 +164,38 @@ public class CustomerDAOImpl implements CustomerDAO{
         // return the results        
         return customers;
 
+	}
+
+
+	@Override
+	public List<Customer> getCustomers(int theSortField) {
+		
+		Session currentSession = sessionFactory.getCurrentSession();
+		
+		// determine sort field
+		String theFieldName = null;
+		
+		switch(theSortField) {
+			case SortUtils.FIRST_NAME:
+				theFieldName = "first_name";
+				break;
+			case SortUtils.LAST_NAME:
+				theFieldName = "last_name";
+				break;
+			case SortUtils.EMAIL:
+				theFieldName = "email";
+				break;
+			default:
+				// if nothing matches the default
+				theFieldName = "last_name";
+		}
+		
+		// create a query
+		String queryString = "from Customer order by " + theFieldName;
+		Query<Customer> theQuery = currentSession.createQuery(queryString, Customer.class);
+		List<Customer> customerList = theQuery.getResultList();
+		
+		return customerList;
 	}
 
 }
